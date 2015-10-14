@@ -1,0 +1,18 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: myproject
+  name: myproject
+  namespace: myproject
+spec:
+  type: NodePort
+  ports:
+    - name: https
+      port: 443
+      targetPort: 443
+      nodePort: 30801
+  selector:
+    name: myproject
+

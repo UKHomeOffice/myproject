@@ -1,0 +1,52 @@
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: myproject
+  namespace: myproject
+spec:
+  replicas: 1
+  selector:
+    name: myproject
+  template:
+    metadata:
+      labels:
+        name: myproject
+      namespace: myproject
+    spec:
+      containers:
+      - name: vault-sidekick
+        image: gambol99/vault-sidekick:0.0.1
+        imagePullPolicy: Always
+        args:
+          - -logtostderr=true
+          - -v=4
+          - -tls-skip-verify=true
+          - -auth=/etc/vault/vault-token.yml
+          - -output=/etc/secrets
+          - -cn=pki:platform_tls:cn=myproject.notprod.homeoffice.gov.uk,fmt=cert,up=12h,fn=wild.notprod.homeoffice.gov.uk
+        env:
+          - name: VAULT_ADDR
+            value: https://vault.platform.cluster.local:8200
+        volumeMounts:
+          - name: vault
+            mountPath: /etc/vault
+          - name: secrets
+            mountPath: /etc/secrets
+      - name: nginx-tls-sidekick
+        image: quay.io/ukhomeofficedigital/nginx-tls-sidekick
+        imagePullPolicy: Always
+        args:
+          - ./run.sh
+          - -p
+          - 443:127.0.0.1:4180:myproject.notprod.homeoffice.gov.uk
+        volumeMounts:
+          - name: secrets
+            mountPath: /etc/secrets
+      volumes:
+        - name: secrets
+          emptyDir: {}
+        - name: vault
+          secret:
+            secretName: vault
+

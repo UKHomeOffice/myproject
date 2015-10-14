@@ -1,0 +1,19 @@
+{
+  "path": {
+    "auth/*": {
+      "policy": "read"
+    },
+    "secret/myproject/*": {
+      "policy": "write"
+    },
+    "secret/platform_tls": {
+      "policy": "read"
+    },
+    "pki/issue/platform_tls": {
+      "policy": "write"
+    },
+    "aws/myproject/*": {
+      "policy": "read"
+    }
+  }
+}
